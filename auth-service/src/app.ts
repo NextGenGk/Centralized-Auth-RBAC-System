@@ -25,7 +25,16 @@ if (process.env.NODE_ENV === 'production') {
 const app = express();
 
 // ── Security headers ───────────────────────────────────────────
-app.use(helmet());
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      ...helmet.contentSecurityPolicy.getDefaultDirectives(),
+      "script-src": ["'self'", "https://cdnjs.cloudflare.com", "'unsafe-inline'"],
+      "style-src": ["'self'", "https://cdnjs.cloudflare.com", "'unsafe-inline'"],
+      "img-src": ["'self'", "data:", "https://cdnjs.cloudflare.com"],
+    },
+  },
+}));
 app.use(cors({ origin: '*', methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'] }));
 
 // ── Request parsing ────────────────────────────────────────────
