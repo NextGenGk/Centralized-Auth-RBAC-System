@@ -7,8 +7,16 @@ function required(key: string): string {
   return val;
 }
 
-function decodeKey(b64: string): string {
-  return Buffer.from(b64, 'base64').toString('utf8');
+function decodeKey(b64: string, name: string): string {
+  try {
+    const decoded = Buffer.from(b64, 'base64').toString('utf8');
+    if (!decoded.includes('BEGIN')) {
+      console.warn(`[Config] ${name} might not be a valid RSA key (missing BEGIN header)`);
+    }
+    return decoded;
+  } catch (err) {
+    throw new Error(`Failed to decode ${name} from Base64: ${err}`);
+  }
 }
 
 export const config = {
@@ -20,8 +28,8 @@ export const config = {
   },
 
   jwt: {
-    privateKey:    decodeKey(required('JWT_PRIVATE_KEY')),
-    publicKey:     decodeKey(required('JWT_PUBLIC_KEY')),
+    privateKey:    decodeKey(required('JWT_PRIVATE_KEY'), 'JWT_PRIVATE_KEY'),
+    publicKey:     decodeKey(required('JWT_PUBLIC_KEY'),  'JWT_PUBLIC_KEY'),
     accessExpiry:  process.env.JWT_ACCESS_EXPIRY  || '15m',
     refreshExpiry: process.env.JWT_REFRESH_EXPIRY || '7d',
   },
