@@ -12,6 +12,18 @@ import { config }       from './config';
 
 const app = express();
 
+// Swagger docs (moved above security for Vercel compatibility)
+const CSS_URL = "https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.15.5/swagger-ui.min.css";
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
+  customSiteTitle: 'Orders Service API',
+  customCssUrl: CSS_URL,
+  customJs: [
+    "https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.15.5/swagger-ui-bundle.js",
+    "https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.15.5/swagger-ui-standalone-preset.js"
+  ]
+}));
+app.get('/api-docs.json', (_req, res) => res.json(swaggerSpec));
+
 app.use(helmet({
   contentSecurityPolicy: {
     directives: {
@@ -32,17 +44,6 @@ app.get('/health', (_req, res) => {
   res.json({ status: 'ok', service: 'orders-service', timestamp: new Date().toISOString() });
 });
 
-// Swagger docs
-const CSS_URL = "https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.15.5/swagger-ui.min.css";
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
-  customSiteTitle: 'Orders Service API',
-  customCssUrl: CSS_URL,
-  customJs: [
-    "https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.15.5/swagger-ui-bundle.js",
-    "https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.15.5/swagger-ui-standalone-preset.js"
-  ]
-}));
-app.get('/api-docs.json', (_req, res) => res.json(swaggerSpec));
 
 // Routes
 app.use('/orders', ordersRouter);

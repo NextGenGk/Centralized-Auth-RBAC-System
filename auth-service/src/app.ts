@@ -24,6 +24,18 @@ if (process.env.NODE_ENV === 'production') {
 
 const app = express();
 
+// ── Swagger docs (moved above security for Vercel compatibility) ──
+const CSS_URL = "https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.15.5/swagger-ui.min.css";
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
+  customSiteTitle: 'Auth Service API',
+  customCssUrl: CSS_URL,
+  customJs: [
+    "https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.15.5/swagger-ui-bundle.js",
+    "https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.15.5/swagger-ui-standalone-preset.js"
+  ]
+}));
+app.get('/api-docs.json', (_req, res) => res.json(swaggerSpec));
+
 // ── Security headers ───────────────────────────────────────────
 app.use(helmet({
   contentSecurityPolicy: {
@@ -57,17 +69,6 @@ app.get('/health', (_req, res) => {
   res.json({ status: 'ok', service: 'auth-service', timestamp: new Date().toISOString() });
 });
 
-// ── Swagger docs ───────────────────────────────────────────────
-const CSS_URL = "https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.15.5/swagger-ui.min.css";
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
-  customSiteTitle: 'Auth Service API',
-  customCssUrl: CSS_URL,
-  customJs: [
-    "https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.15.5/swagger-ui-bundle.js",
-    "https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.15.5/swagger-ui-standalone-preset.js"
-  ]
-}));
-app.get('/api-docs.json', (_req, res) => res.json(swaggerSpec));
 
 // ── Routes ─────────────────────────────────────────────────────
 app.use('/auth',  authRouter);
