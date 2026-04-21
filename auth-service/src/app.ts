@@ -11,6 +11,16 @@ import { adminRouter }  from './routes/admin.routes';
 import { errorHandler } from './middleware/errorHandler';
 import { AppError }     from './utils/AppError';
 import { config }       from './config';
+import { connectRedis } from './utils/redis';
+import { PrismaClient } from '@prisma/client';
+
+const prisma = new PrismaClient();
+
+// Connect to DB and Redis (lazy initialization for serverless)
+if (process.env.NODE_ENV === 'production') {
+  prisma.$connect().catch(err => console.error('PostgreSQL connection failed', err));
+  connectRedis().catch(err => console.error('Redis connection failed', err));
+}
 
 const app = express();
 
