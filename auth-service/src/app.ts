@@ -26,20 +26,25 @@ const app = express();
 
 // ── Swagger docs (moved above security for Vercel compatibility) ──
 const CSS_URL = "https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.15.5/swagger-ui.min.css";
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(undefined, {
+  swaggerOptions: {
+    url: '/api-docs.json',
+  },
   customSiteTitle: 'Auth Service API',
-  customCssUrl: CSS_URL,
+  customCssUrl: [
+    'https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.15.5/swagger-ui.min.css',
+  ],
   customJs: [
-    "https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.15.5/swagger-ui-bundle.js",
-    "https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.15.5/swagger-ui-standalone-preset.js"
-  ]
+    'https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.15.5/swagger-ui-bundle.js',
+    'https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.15.5/swagger-ui-standalone-preset.js',
+  ],
 }));
 app.get('/api-docs.json', (_req, res) => res.json(swaggerSpec));
 
-// ── Security headers ───────────────────────────────────────────
-app.use(helmet({
-  contentSecurityPolicy: false,
-}));
+// ── Security headers (Temporarily disabled for Swagger compatibility on Vercel) ──
+// app.use(helmet({
+//   contentSecurityPolicy: false,
+// }));
 app.use(cors({ origin: '*', methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'] }));
 
 // ── Request parsing ────────────────────────────────────────────
